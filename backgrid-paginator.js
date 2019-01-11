@@ -166,8 +166,8 @@
       var pageIndex = this.pageIndex;
 
       if (this.isRewind && currentPage == state.firstPage ||
-         this.isBack && !collection.hasPrevious() ||
-         this.isForward && !collection.hasNext() ||
+         this.isBack && !collection.hasPreviousPage() ||
+         this.isForward && !collection.hasNextPage() ||
          this.isFastForward && (currentPage == state.lastPage || state.totalPages < 1)) {
         this.$el.addClass("disabled");
       }
@@ -357,12 +357,35 @@
       return [windowStart, windowEnd];
     },
 
+    isLodash: function isLodash(__) {
+      let _isLodash = false;
+      // If _ is defined and the function _.forEach exists then we know
+      // underscore OR lodash are in place
+      if ('undefined' !== typeof(__) && 'function' === typeof(__.forEach)) {
+          // A small sample of some of the functions that exist in lodash but not underscore
+          const lodashExclusiveFunctions = [
+              'get',
+              'set',
+              'at',
+              'cloneDeep'
+          ];
+          // Simplest if assume exists to start
+          _isLodash  = true;
+          lodashExclusiveFunctions.forEach( ( func ) => {
+              // If just one of the functions do not exist, then not lodash
+              _isLodash = ('function' !== typeof(__[ func ])) ? false : _isLodash;
+          } );
+      }
+      return _isLodash;
+    },
+
     /**
        Creates a list of page handle objects for rendering.
 
        @return {Array.<Object>} an array of page handle objects hashes
     */
     makeHandles: function () {
+      _ = require("underscore");
 
       var handles = [];
       var collection = this.collection;
